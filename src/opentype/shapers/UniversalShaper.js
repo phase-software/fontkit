@@ -169,7 +169,7 @@ function reorder(font, glyphs) {
 }
 
 function nextSyllable(glyphs, start) {
-  if (start >= glyphs.length) return start;
+  if (start >= glyphs.length || !glyphs[start].shaperInfo) return start;
   let syllable = glyphs[start].shaperInfo.syllable;
   while (++start < glyphs.length && glyphs[start].shaperInfo.syllable === syllable);
   return start;
