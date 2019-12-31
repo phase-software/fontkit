@@ -118,7 +118,7 @@ function reorder(font, glyphs) {
   for (let start = 0, end = nextSyllable(glyphs, 0); start < glyphs.length; start = end, end = nextSyllable(glyphs, start)) {
     let i, j;
     let info = glyphs[start].shaperInfo;
-    let type = info.syllableType;
+    let type = info ? info.syllableType : null;
 
     // Only a few syllable types need reordering.
     if (type !== 'virama_terminated_cluster' && type !== 'standard_cluster' && type !== 'broken_cluster') {
@@ -137,7 +137,7 @@ function reorder(font, glyphs) {
     }
 
     // Move things forward.
-    if (info.category === 'R' && end - start > 1) {
+    if (info && info.category === 'R' && end - start > 1) {
       // Got a repha. Reorder it to after first base, before first halant.
       for (i = start + 1; i < end; i++) {
         info = glyphs[i].shaperInfo;
@@ -157,19 +157,22 @@ function reorder(font, glyphs) {
     // Move things back.
     for (i = start, j = end; i < end; i++) {
       info = glyphs[i].shaperInfo;
-      if (isBase(info) || isHalant(glyphs[i])) {
-        // If we hit a halant, move after it; otherwise it's a base: move to it's
-        // place, and shift things in between backward.
-        j = isHalant(glyphs[i]) ? i + 1 : i;
-      } else if ((info.category === 'VPre' || info.category === 'VMPre') && j < i) {
-        glyphs.splice(j, 1, glyphs[i], ...glyphs.splice(j, i - j));
+      if (info) {
+        if (isBase(info) || isHalant(glyphs[i])) {
+            // If we hit a halant, move after it; otherwise it's a base: move to it's
+            // place, and shift things in between backward.
+            j = isHalant(glyphs[i]) ? i + 1 : i;
+        } else if ((info.category === 'VPre' || info.category === 'VMPre') && j < i) {
+            glyphs.splice(j, 1, glyphs[i], ...glyphs.splice(j, i - j));
+        }
       }
     }
   }
 }
 
 function nextSyllable(glyphs, start) {
-  if (start >= glyphs.length || !glyphs[start].shaperInfo) return start;
+  if (start >= glyphs.length) return start;
+  if (!glyphs[start].shaperInfo) return glyphs.length;
   let syllable = glyphs[start].shaperInfo.syllable;
   while (++start < glyphs.length && glyphs[start].shaperInfo.syllable === syllable);
   return start;
