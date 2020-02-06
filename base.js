@@ -14,10 +14,10 @@ fontkit.registerFormat = function (format) {
   formats.push(format);
 };
 
-fontkit.openSync = function (filename, postscriptName) {
-  var buffer = fs.readFileSync(filename);
-  return fontkit.create(buffer, postscriptName);
-};
+// fontkit.openSync = function(filename, postscriptName) {
+//   let buffer = fs.readFileSync(filename);
+//   return fontkit.create(buffer, postscriptName);
+// };
 
 fontkit.open = function (filename, postscriptName, callback) {
   if (typeof postscriptName === 'function') {
